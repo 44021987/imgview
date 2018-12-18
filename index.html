@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>imgview demo</title>
+  <link rel="stylesheet" href="./demo.css">
+
+</head>
+
+<body>
+  <div id="app">
+    <h3>单张图片预览</h3>
+    <img style="width: 100px;height: 100px" src="./img/1.png" alt="2333">
+    <img style="width: 100px;height: 100px" src="./img/2.png" alt="">
+    <img style="width: 100px;height: 100px" src="./img/3.png" alt="">
+    <img style="width: 100px;height: 100px" src="./img/4.png" alt="">
+  </div>
+  <div id="app1">
+    <h3>多张图片预览模式</h3>
+  </div>
+ 
+  <div id="app2">
+    <h1>自定义模式</h1>
+  </div>
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="imgview.min.js"></script>
+</body>
+<script>
+
+  var res = [
+    "./img/1.png",
+    "https://avatars1.githubusercontent.com/u/628250",
+    "https://avatars0.githubusercontent.com/u/4279697", "https://avatars1.githubusercontent.com/u/8046366",
+    "https://avatars2.githubusercontent.com/u/17611077", "https://avatars3.githubusercontent.com/u/6591466",
+    "https://avatars2.githubusercontent.com/u/20244141", "https://avatars3.githubusercontent.com/u/37576865",
+    "https://avatars3.githubusercontent.com/u/34409208", "https://avatars1.githubusercontent.com/u/1403893"
+
+  ]
+
+  // 单个预览
+  function showImg1(src) {
+    $('#app img').on('click', function () {
+      new Imgview({
+        src: this.src,
+        maskClose: false,
+        showDowmload: true
+      })
+    })
+  }
+
+  function showImg2() {
+    var $box = $('#app1')
+    res.forEach(function (item, i) {
+      var $el = $('<img style="width: 100px;height: 100px" src=' + item + '>')
+      $el.on('click', function () {
+        new Imgview({
+          data: res,
+          index: i,
+          showDowmload: true
+        })
+      })
+      $box.append($el)
+    })
+  }
+
+  /*
+   * @param {Object}
+   * {data: Array, showDownload: Boolean}
+   */
+  var imageViewCreate = {
+    init: function (opts) {
+      if (!(opts.data instanceof Array)) throw new Error('参数错误')
+      this.createImgList(opts)
+    },
+    createImgList: function (opts) {
+      var parent = document.querySelector(opts.el) || document.body
+      var data = opts.data
+      var that = this
+      var imgBox = document.createElement('div')
+      imgBox.className = 'img-list-wrap'
+      data.forEach(function (item, index) {
+        var imgItem = document.createElement('div')
+        var imgSrc = that.createImg(imgItem)
+        that.loadImg(imgSrc, function () {
+          if (!opts.showDownload) {
+            that.bindImagView(imgItem, data, index)
+          } else {
+            that.bindHover(imgItem)
+            imgItem.appendChild(that.createdMask(data[index], data, index))
+          }
+        }).setSrc(item)
+        imgItem.className = 'img-list-box'
+        imgBox.appendChild(imgItem)
+      })
+      parent.appendChild(imgBox)
+    },
+    createImg: function (parent) {
+      var oImg = document.createElement('img')
+      oImg.src = './img/loading.gif'
+      parent.appendChild(oImg);
+      return {
+        setSrc: function (src) {
+          oImg.src = src
+          oImg = null
+        }
+      }
+    },
+    loadImg: function (oImag, callback) {
+      var img = new Image;
+      img.onload = function () {
+        oImag.setSrc(this.src)
+        img = null
+        callback && callback()
+      }
+      return {
+        setSrc: function (src) {
+          img.src = src
+        }
+      }
+    },
+    createdMask: function (href, data, index) {
+      var oMask = document.createElement('div');
+      var view = document.createElement('span');
+      var download = document.createElement('a');
+      oMask.className = 'imgview-mask';
+      view.className = 'btn-show-img';
+      download.className = 'btn-download';
+      download.setAttribute('href', href);
+      download.title = '下载'
+      view.title = '预览'
+      this.bindImagView(view, data, index);
+      oMask.appendChild(view);
+      oMask.appendChild(download);
+      return oMask
+    },
+    bindImagView: function (el, data, index) {
+      el.addEventListener('click', function () {
+        new Imgview({
+          data: data,
+          index: index
+        })
+      })
+    },
+    bindHover: function (el) {
+      el.addEventListener('mouseenter', function () {
+        this.setAttribute('class', 'img-list-box hover')
+      })
+      el.addEventListener('mouseleave', function () {
+        this.setAttribute('class', 'img-list-box')
+      })
+    }
+  }
+
+  function imgview(opts) {
+    imageViewCreate.init(opts)
+  }
+  
+  showImg1()
+  showImg2()
+  imgview({
+    el: '#app2',
+    data: res
+  })
+</script>
+
+</html>
