@@ -4,7 +4,7 @@ const express = require('express')
 const app = express()
 
 // app.use(history())
-app.use(express.static('src'))
+app.use(express.static('demo'))
 
 
 app.listen(5001, () => {

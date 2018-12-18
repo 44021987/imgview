@@ -52,16 +52,26 @@ export const Imgview = function(opts) {
   this.imgWrapHeight = 0
   this.minScreen = 1200
   this.imgWidthPersent = '80%'
+  // 判断上一级iframe是否引入Imgview
+  this.isIframe = false
   this.init()
 }
 Imgview.prototype.init = function() {
   var that = this
+  this.setIsIframe()
   this.createImgview(function() {
     that.bindClickEvent()
     that.bindMove()
     that.bindSelect()
   })
   this.remove()
+}
+Imgview.prototype.setIsIframe = function() {
+  try{
+    this.isIframe = (self != top && !!top.Imgview)
+  } catch(e) {
+    this.isIframe = false;
+  }
 }
 Imgview.prototype.createImgview = function(fn) {
   var clientW = document.documentElement.clientWidth || document.body.clientWidth
@@ -104,10 +114,15 @@ Imgview.prototype.createImgview = function(fn) {
   }
 }
 Imgview.prototype.createdDom = function() {
-  var oldBox = $$('.imgview-box')
   var clientW = document.documentElement.clientWidth || document.body.clientWidth
   var style = clientW > this.minScreen ? '' : 'width:' + this.imgWidthPersent
-  if (oldBox) document.body.removeChild(oldBox)
+  if (this.box) {
+    if (this.isIframe) {
+      top.document.body.removeChild(this.box)
+    } else {
+      document.body.removeChild(this.box)
+    }
+  }
   var oBox = document.createElement('div')
   var str =
     '<div class="imgview-view" style="'+style+'"><div class="btn-wrap">' +
@@ -125,7 +140,7 @@ Imgview.prototype.createdDom = function() {
   str +=
     '</div>' +
     '<div class="imgview-inner">' +
-    '<div class="img-wrap">' +
+    '<div class="imgview-wrap">' +
     '<img class="imgview-show" style="width: 100px" src=' +loading +' />' +
     '</div>' +
     '</div>' +
@@ -133,10 +148,12 @@ Imgview.prototype.createdDom = function() {
 
   oBox.className = 'imgview-box'
   oBox.innerHTML = str
-  if (self != top) { 
-    top.document.body.style.boxShadow = '0 0 0 100vh rgba(0, 0, 0, 0.8)'
+  if (this.isIframe) {
+    // if (!top.Imgview) 
+    top.document.body.appendChild(oBox)
+  } else {
+    document.body.appendChild(oBox)
   }
-  document.body.appendChild(oBox)
   this.box = oBox
   return oBox
 }
@@ -144,24 +161,26 @@ Imgview.prototype.remove = function() {
   var that = this;
   this.box.onclick = function(e) {
     var target = e.target
-    if (target === $$('.del-box') || (that.maskClose === true && target === this)) {
-      document.body.removeChild(this)
-      if (self != top) { 
-        top.document.body.style.boxShadow = ''
+    if (target === $$('.del-box', that.box) || (that.maskClose === true && target === this)) {
+      if (that.isIframe) { 
+        top.document.body.removeChild(this)
+      } else {
+        document.body.removeChild(this)
       }
+      that.box = null
     }
   }
 }
 Imgview.prototype.bindSelect = function() {
-  var oBtns = $$('.imgview-box .btn-wrap')
-  var oImg = $$('.imgview-show')
+  var oBtns = $$('.imgview-box .btn-wrap', this.box)
+  var oImg = $$('.imgview-show', this.box)
   var _this = this
   var changeImg = function(target, el) {
     var num = 1
     var el = null
     if (target.id !== 'btn-prev' && target.id !== 'btn-next') return
     num = target.id === 'btn-prev' ? -1 : 1
-    el = target.id === 'btn-prev' ? $$('#btn-next') : $$('#btn-prev')
+    el = target.id === 'btn-prev' ? $$('#btn-next', _this.box) : $$('#btn-prev', _this.box)
     if (
       (num === -1 && _this.index === 0) ||
       (num === 1 && _this.index === _this.data.length - 1)
@@ -186,7 +205,7 @@ Imgview.prototype.bindSelect = function() {
 }
 Imgview.prototype.bindClickEvent = function() {
   var _this = this
-  var oImg = $$('.imgview-show')
+  var oImg = $$('.imgview-show', this.box)
   var changeTransform = function() {
     if (_this.scale <= 1) {
       oImg.style.cursor = ''
@@ -195,18 +214,18 @@ Imgview.prototype.bindClickEvent = function() {
     }
     _this.setScale(oImg, _this.scale, _this.scale)
   }
-  $$('#btn-add').addEventListener('click', function() {
+  $$('#btn-add', this.box).addEventListener('click', function() {
     _this.scale += 0.35
     if (_this.scale >= _this.maxScale) _this.scale = _this.maxScale
     changeTransform()
   })
-  $$('#btn-restore').addEventListener('click', function() {
+  $$('#btn-restore', this.box).addEventListener('click', function() {
     _this.scale = 1
     oImg.style.left = 0
     oImg.style.top = 0
     changeTransform()
   })
-  $$('#btn-reduce').addEventListener('click', function() {
+  $$('#btn-reduce', this.box).addEventListener('click', function() {
     _this.scale -= 0.35
     if (_this.scale <= _this.minScale) _this.scale = _this.minScale
     oImg.style.left = 0
@@ -221,7 +240,8 @@ Imgview.prototype.setScale = function(el, x, y) {
 }
 Imgview.prototype.bindMove = function() {
   var _this = this
-  var oImg = $$('.imgview-show')
+  var doc = this.isIframe ? top.document : document
+  var oImg = $$('.imgview-show', this.box)
   oImg.onmousedown = function(e) {
     var imgWidth = this.offsetWidth * _this.scale
     var imgHeight = this.offsetHeight * _this.scale
@@ -260,7 +280,7 @@ Imgview.prototype.bindMove = function() {
       this.style.left = dis + 'px'
     }
   }
-  document.onmouseup = function(e) {
+  doc.onmouseup = function(e) {
     _this.isMove = false
     _this.x = 0
     _this.y = 0

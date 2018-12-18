@@ -4,7 +4,14 @@ button {
 a {
   text-decoration: none;
 }
-
+.imgview-box>*{
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 /* img view */
 .imgview-box {
   position: fixed;
@@ -121,23 +128,26 @@ a {
   background: #01A29B;
 }
 .dowmload-btn {
-  width: 18px;
+  width: 19px;
   height: 14px;
   border-width: 1px;
   vertical-align: middle;
   border-radius: 0;
   position: relative;
+  top: 2px;
 }
 .dowmload-btn::after {
   content: "\2193";
+  width: 12px;
   font-size: 12px;
   position: absolute;
-  left: 3px;
+  left: 50%;
   top: -5px;
+  margin-left: -6px;
   background: #ffffff;
   z-index: 2;
 }
-.img-wrap {
+.imgview-wrap {
   position: relative;
   top: 50%;
   left: 0;

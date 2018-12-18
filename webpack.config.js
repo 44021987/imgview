@@ -10,7 +10,7 @@ module.exports = {
     libraryTarget: "umd",
     filename: '[name].min.js',
     chunkFilename: '[name].min.js',
-    path: path.resolve(__dirname)
+    path: path.resolve(__dirname, 'demo')
   },
   module: {
     rules: [

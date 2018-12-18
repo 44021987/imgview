@@ -6,17 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>imgview demo</title>
-  <link rel="stylesheet" href="src/css/demo.css">
+  <link rel="stylesheet" href="./demo.css">
 
 </head>
 
 <body>
   <div id="app">
     <h3>单张图片预览</h3>
-    <img style="width: 100px;height: 100px" src="src/img/1.png" alt="2333">
-    <img style="width: 100px;height: 100px" src="src/img/2.png" alt="">
-    <img style="width: 100px;height: 100px" src="src/img/3.png" alt="">
-    <img style="width: 100px;height: 100px" src="src/img/4.png" alt="">
+    <img style="width: 100px;height: 100px" src="./img/1.png" alt="2333">
+    <img style="width: 100px;height: 100px" src="./img/2.png" alt="">
+    <img style="width: 100px;height: 100px" src="./img/3.png" alt="">
+    <img style="width: 100px;height: 100px" src="./img/4.png" alt="">
   </div>
   <div id="app1">
     <h3>多张图片预览模式</h3>
@@ -25,13 +25,13 @@
   <div id="app2">
     <h1>自定义模式</h1>
   </div>
-  <script src="src/jquery.min.js"></script>
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
   <script src="imgview.min.js"></script>
 </body>
 <script>
 
   var res = [
-    "src/img/1.png",
+    "./img/1.png",
     "https://avatars1.githubusercontent.com/u/628250",
     "https://avatars0.githubusercontent.com/u/4279697", "https://avatars1.githubusercontent.com/u/8046366",
     "https://avatars2.githubusercontent.com/u/17611077", "https://avatars3.githubusercontent.com/u/6591466",
@@ -99,7 +99,7 @@
     },
     createImg: function (parent) {
       var oImg = document.createElement('img')
-      oImg.src = 'src/img/loading.gif'
+      oImg.src = './img/loading.gif'
       parent.appendChild(oImg);
       return {
         setSrc: function (src) {
