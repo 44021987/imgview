@@ -1,6 +1,10 @@
 ```
 git clone https://github.com/44021987/imgview.git
 
+cd imgview
+
+npm install
+
 # 开发
 npm run dev
 
