@@ -1,7 +1,7 @@
 {
-  "name": "olmaps",
-  "version": "1.0.3",
-  "description": "Easymaps API, based on openlayers",
+  "name": "imageview",
+  "version": "1.0.1",
+  "description": "imageview",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env NODE_ENV=production webpack",
@@ -15,7 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "ol": "^5.1.3",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -28,6 +27,7 @@
     "css-loader": "^1.0.0",
     "file-loader": "^2.0.0",
     "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "url-loader": "^1.1.2",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",

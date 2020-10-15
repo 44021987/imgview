@@ -21,7 +21,7 @@
   <div id="app1">
     <h3>多张图片预览模式</h3>
   </div>
- 
+
   <div id="app2">
     <h1>自定义模式</h1>
   </div>
@@ -33,10 +33,14 @@
   var res = [
     "./img/1.png",
     "https://avatars1.githubusercontent.com/u/628250",
-    "https://avatars0.githubusercontent.com/u/4279697", "https://avatars1.githubusercontent.com/u/8046366",
-    "https://avatars2.githubusercontent.com/u/17611077", "https://avatars3.githubusercontent.com/u/6591466",
-    "https://avatars2.githubusercontent.com/u/20244141", "https://avatars3.githubusercontent.com/u/37576865",
-    "https://avatars3.githubusercontent.com/u/34409208", "https://avatars1.githubusercontent.com/u/1403893"
+    "https://avatars0.githubusercontent.com/u/4279697",
+    "https://avatars1.githubusercontent.com/u/8046366",
+    "https://avatars2.githubusercontent.com/u/17611077",
+    "https://avatars3.githubusercontent.com/u/6591466",
+    "https://avatars2.githubusercontent.com/u/20244141",
+    "https://avatars3.githubusercontent.com/u/37576865",
+    "https://avatars3.githubusercontent.com/u/34409208",
+    // "https://avatars1.githubusercontent.com/u/1403893"
 
   ]
 
@@ -59,7 +63,8 @@
         new Imgview({
           data: res,
           index: i,
-          showDowmload: true
+          showDowmload: true,
+          downloadFormat: (v, i) => `${v}?n=${i}`
         })
       })
       $box.append($el)
@@ -157,7 +162,7 @@
   function imgview(opts) {
     imageViewCreate.init(opts)
   }
-  
+
   showImg1()
   showImg2()
   imgview({

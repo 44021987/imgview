@@ -4,7 +4,7 @@ button {
 a {
   text-decoration: none;
 }
-.imgview-box>*{
+.imgview-box > * {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -23,7 +23,7 @@ a {
   z-index: 9999;
 }
 .imgview-view {
-  position: relative;
+  position: absolute;
   top: 50%;
   left: 50%;
   width: 60%;
@@ -52,7 +52,7 @@ a {
   border-radius: 50%;
 }
 .del-box:hover {
-  background: #01A29B;
+  background: #01a29b;
   color: #ffffff;
 }
 
@@ -95,10 +95,10 @@ a {
   margin: 0;
   margin-top: -20px;
   border: none;
-  transition: all .28s;
-  -moz-transition: all .28s;
-  -webkit-transition: all .28s;
-  -o-transition: all .28s;
+  transition: all 0.28s;
+  -moz-transition: all 0.28s;
+  -webkit-transition: all 0.28s;
+  -o-transition: all 0.28s;
 }
 
 .imgview-btn.prev {
@@ -109,7 +109,7 @@ a {
   right: 10px;
 }
 .scale-btn::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -120,12 +120,15 @@ a {
   z-index: -1;
 }
 
-.imgview-btn:hover {
-  color: #01A29B;
-  border-color: #01A29B;
+.imgview-btn:not(.imgview-not-allowed):hover {
+  color: #01a29b;
+  border-color: #01a29b;
+}
+.imgview-not-allowed {
+  cursor: not-allowed;
 }
 .scale-btn:hover::after {
-  background: #01A29B;
+  background: #01a29b;
 }
 .dowmload-btn {
   width: 19px;
@@ -137,7 +140,7 @@ a {
   top: 2px;
 }
 .dowmload-btn::after {
-  content: "\2193";
+  content: '\2193';
   width: 12px;
   font-size: 12px;
   position: absolute;
@@ -148,7 +151,7 @@ a {
   z-index: 2;
 }
 .imgview-wrap {
-  position: relative;
+  position: absolute;
   top: 50%;
   left: 0;
   width: 100%;
