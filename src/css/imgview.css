@@ -130,6 +130,22 @@ a {
 .scale-btn:hover::after {
   background: #01a29b;
 }
+.imgview-btn.imgview-btn-rotate {
+  border-radius: 0;
+  /* border: none; */
+}
+.imgview-btn-rotate[data-id='l'] {
+  transform: rotate(90deg);
+}
+.imgview-btn-rotate[data-id='r'] {
+  transform: rotate(-90deg);
+}
+.imgview-btn-rotate[data-id='l']::before {
+  content: '\21BB';
+}
+.imgview-btn-rotate[data-id='r']::before {
+  content: '\21BA';
+}
 .dowmload-btn {
   width: 19px;
   height: 14px;

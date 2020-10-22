@@ -26,10 +26,12 @@ const defaultOpts = {
   minScale: 0.5,
   maskClose: false,
   showDowmload: false,
+  showRotate: true,
   downloadFormat: (src) => src
 }
 // 检测是否为对象类型
 const isObject = (opts) => Object.prototype.toString.call(opts) === '[object Object]'
+
 
 /**
  * @constructor
@@ -140,12 +142,19 @@ Imgview.prototype.createdDom = function () {
     }
   }
   const oBox = document.createElement('div')
-  const { showDowmload, downloadFormat } = this.config
+  const { showRotate, showDowmload, downloadFormat } = this.config
   let str =
     '<div class="imgview-view" style="' + style + '"><div class="btn-wrap">' +
-    '<button id="imgview-btn-big" class="imgview-btn scale-btn" title="放大">+</button>' +
-    '<button id="imgview-btn-reset" class="imgview-btn scale-btn" title="还原">1</button>' +
-    '<button id="imgview-btn-small" class="imgview-btn scale-btn" title="缩小">-</button>'
+    '<button data-id="bigger" class="imgview-btn scale-btn" title="放大">+</button>' +
+    '<button data-id="reset" class="imgview-btn scale-btn" title="还原">1</button>' +
+    '<button data-id="small" class="imgview-btn scale-btn" title="缩小">-</button>'
+
+  if (showRotate !== false) {
+    str += `
+    <button data-id="l" class="imgview-btn imgview-btn-rotate" title="顺时针旋转"></button>
+    <button data-id="r" class="imgview-btn imgview-btn-rotate" title="逆时针旋转"></button>
+    `
+  }
   if (showDowmload === true) {
     str += '<a class="imgview-btn dowmload-btn" title="下载" href="' + downloadFormat(this.src, this.index) + '" download="' + this.src.split('/').pop() + '"></a>'
   }
@@ -249,32 +258,52 @@ Imgview.prototype.bindClickEvent = function () {
     }
     _this.setScale(oImg, _this.scale, _this.scale)
   }
-  // 放大
-  $$('#imgview-btn-big', this.box).addEventListener('click', function () {
-    _this.scale += 0.35
-    if (_this.scale >= _this.maxScale) _this.scale = _this.maxScale
-    changeTransform()
-  })
-  // 还原
-  $$('#imgview-btn-reset', this.box).addEventListener('click', function () {
-    _this.scale = 1
-    oImg.style.left = 0
-    oImg.style.top = 0
-    changeTransform()
-  })
-  // 缩小
-  $$('#imgview-btn-small', this.box).addEventListener('click', function () {
-    _this.scale -= 0.35
-    if (_this.scale <= _this.minScale) _this.scale = _this.minScale
-    oImg.style.left = 0
-    oImg.style.top = 0
-    changeTransform()
+  this.box.addEventListener('click', function (e) {
+    const id = e.target.getAttribute('data-id')
+    // 旋转
+    if (~['l', 'r'].indexOf(id)) {
+      const val = id === 'l' ? 90 : -90
+      const currentDeg = oImg.getAttribute('data-deg') | 0
+      const deg = currentDeg + val
+      oImg.setAttribute('data-deg', deg)
+      oImg.style.transform = `rotate(${deg}deg)`
+      oImg.style.left = 0
+      oImg.style.top = 0
+      return
+    }
+    // 放大
+    if (id === 'bigger') {
+      _this.scale += 0.35
+      if (_this.scale >= _this.maxScale) _this.scale = _this.maxScale
+      changeTransform()
+      return
+    }
+    // 还原
+    if (id === 'reset') {
+      _this.scale = 1
+      oImg.style.left = 0
+      oImg.style.top = 0
+      changeTransform()
+      return
+    }
+    // 缩小
+    if (id === 'small') {
+      _this.scale -= 0.35
+      if (_this.scale <= _this.minScale) _this.scale = _this.minScale
+      oImg.style.left = 0
+      oImg.style.top = 0
+      changeTransform()
+      return
+    }
   })
 }
 
+// 设置缩放比
 Imgview.prototype.setScale = function (el, x, y) {
-  el.style.transform = 'scale3d(' + x + ', ' + y + ', 1)'
-  el.style.WebkitTransform = 'scale3d(' + x + ', ' + y + ', 1)'
+  // 获取旋转角度
+  const currentDeg = el.getAttribute('data-deg') | 0
+  el.style.transform = `scale3d(${x},${y}, 1) rotate(${currentDeg}deg)`
+  el.style.WebkitTransform = `scale3d(${x},${y}, 1) rotate(${currentDeg}deg)`
 }
 
 // 拖拽
