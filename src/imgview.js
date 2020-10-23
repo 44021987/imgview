@@ -18,15 +18,36 @@ function $$ (v, node) {
   node = node || document
   return node.querySelector(v)
 }
+
+// 获取挂载dom
+function getParent (context) {
+  const _document = context.isIframe ? top.document.body : document.body
+  const _defaultParent = context.config.parent
+  return (_defaultParent && _defaultParent.nodeType) ? _defaultParent : _document
+}
 // 默认配置
 const defaultOpts = {
+  // 多张图片切换时默认展示的图片下标
   index: 0,
+  // 待预览图片数组
   data: [],
-  maxScale: 3,
-  minScale: 0.5,
-  maskClose: false,
+  // 是否显示下载按钮
   showDowmload: false,
+  // 是否显示旋转按钮
   showRotate: true,
+  // 是否显示关闭按钮
+  showClose: true,
+  // 是否显示缩放按钮
+  showscale: true,
+  // 点击遮罩是否关闭
+  maskClose: false,
+  // 最大缩放
+  maxScale: 3,
+  // 最小缩放
+  minScale: 0.5,
+  // 遮罩的背景颜色，内嵌的某些场景用
+  bgColor: null,
+  // 下载针对url的format
   downloadFormat: (src) => src
 }
 // 检测是否为对象类型
@@ -42,7 +63,7 @@ export const Imgview = function (opts) {
   for (const key in defaultOpts) {
     if (opts[key] === undefined) { opts[key] = defaultOpts[key] }
   }
-  const { src, index, data, maskClose, maxScale, minScale } = opts
+  const { src, index, data } = opts
   this.config = opts
   this.x = 0
   this.y = 0
@@ -57,9 +78,6 @@ export const Imgview = function (opts) {
   this.data = data
   this.index = this.currentIndex(index)
   this.src = src || data[this.index]
-  this.maskClose = maskClose
-  this.maxScale = maxScale
-  this.minScale = minScale
   this.imgWrapWidth = 0
   this.imgWrapHeight = 0
   this.minScreen = 1200
@@ -133,22 +151,34 @@ Imgview.prototype.createImgview = function (fn) {
 // 创建预览层dom
 Imgview.prototype.createdDom = function () {
   const clientW = document.documentElement.clientWidth || document.body.clientWidth
-  const style = clientW > this.minScreen ? '' : 'width:' + this.imgWidthPersent
-  if (this.box) {
-    if (this.isIframe) {
-      top.document.body.removeChild(this.box)
-    } else {
-      document.body.removeChild(this.box)
+  let style = clientW > this.minScreen ? '' : 'width:' + this.imgWidthPersent
+  const parent = getParent(this)
+  parent.style.overflow = 'auto'
+  // 有指定父级的情况
+  if (this.config.parent) {
+    const _$box = [...parent.querySelectorAll('.imgview-box')]
+    _$box.forEach(v => parent.removeChild(v))
+  } else {
+    if (this.box) {
+      try {
+        parent.removeChild(this.box)
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
   const oBox = document.createElement('div')
-  const { showRotate, showDowmload, downloadFormat } = this.config
-  let str =
-    '<div class="imgview-view" style="' + style + '"><div class="btn-wrap">' +
-    '<button data-id="bigger" class="imgview-btn scale-btn" title="放大">+</button>' +
-    '<button data-id="reset" class="imgview-btn scale-btn" title="还原">1</button>' +
-    '<button data-id="small" class="imgview-btn scale-btn" title="缩小">-</button>'
+  const { showscale, showRotate, showDowmload, showClose, downloadFormat, bgColor } = this.config
+  if (typeof bgColor === 'string') {
+    oBox.style.backgroundColor = bgColor
+  }
+  let str = `<div class="imgview-view" style="${style}"><div class="btn-wrap">`
 
+  if (showscale !== false) {
+    str += `<button data-id="bigger" class="imgview-btn scale-btn" title="放大">+</button>
+      <button data-id="reset" class="imgview-btn scale-btn" title="还原">1</button>
+      <button data-id="small" class="imgview-btn scale-btn" title="缩小">-</button>`
+  }
   if (showRotate !== false) {
     str += `
     <button data-id="l" class="imgview-btn imgview-btn-rotate" title="顺时针旋转"></button>
@@ -170,16 +200,18 @@ Imgview.prototype.createdDom = function () {
     '<div class="imgview-wrap">' +
     '<img class="imgview-show" style="width: 100px" src=' + loading + ' />' +
     '</div>' +
-    '</div>' +
-    '<div class="del-box">×</div></div>'
-
+    '</div>'
+  if (showClose !== false) {
+    str += '<div class="imgview-del-icon">×</div>'
+  }
+  str += '</div>'
   oBox.className = 'imgview-box'
   oBox.innerHTML = str
-  if (this.isIframe) {
-    // if (!top.Imgview) 
-    top.document.body.appendChild(oBox)
-  } else {
-    document.body.appendChild(oBox)
+  try {
+    parent.appendChild(oBox)
+    parent.style.overflow = 'hidden'
+  } catch (error) {
+    console.error(error)
   }
   this.box = oBox
   return oBox
@@ -188,12 +220,10 @@ Imgview.prototype.bindRemove = function () {
   const that = this;
   this.box.onclick = function (e) {
     const target = e.target
-    if (target === $$('.del-box', that.box) || (that.maskClose === true && target === this)) {
-      if (that.isIframe) {
-        top.document.body.removeChild(this)
-      } else {
-        document.body.removeChild(this)
-      }
+    if (target === $$('.imgview-del-icon', that.box) || (that.config.maskClose === true && target === this)) {
+      const parent = that.isIframe ? top.document.body : document.body
+      parent.style.overflow = 'auto'
+      parent.removeChild(this)
       that.box = null
     }
   }
@@ -274,7 +304,7 @@ Imgview.prototype.bindClickEvent = function () {
     // 放大
     if (id === 'bigger') {
       _this.scale += 0.35
-      if (_this.scale >= _this.maxScale) _this.scale = _this.maxScale
+      if (_this.scale >= _this.config.maxScale) _this.scale = _this.config.maxScale
       changeTransform()
       return
     }
@@ -289,7 +319,7 @@ Imgview.prototype.bindClickEvent = function () {
     // 缩小
     if (id === 'small') {
       _this.scale -= 0.35
-      if (_this.scale <= _this.minScale) _this.scale = _this.minScale
+      if (_this.scale <= _this.config.minScale) _this.scale = _this.config.minScale
       oImg.style.left = 0
       oImg.style.top = 0
       changeTransform()

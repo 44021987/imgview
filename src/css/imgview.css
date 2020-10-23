@@ -14,7 +14,7 @@ a {
 }
 /* img view */
 .imgview-box {
-  position: fixed;
+  position: absolute;
   top: 0px;
   left: 0;
   right: 0;
@@ -36,7 +36,7 @@ a {
   overflow: auto;
 }
 
-.del-box {
+.imgview-del-icon {
   position: absolute;
   right: 10px;
   top: 10px;
@@ -51,7 +51,7 @@ a {
   background: #cccccc;
   border-radius: 50%;
 }
-.del-box:hover {
+.imgview-del-icon:hover {
   background: #01a29b;
   color: #ffffff;
 }
